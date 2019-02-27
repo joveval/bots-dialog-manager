@@ -1,0 +1,16 @@
+package pe.joseval.bots.dm.response;
+
+
+public enum MessageType {
+	RAW_TEXT,
+	CUSTOMIZED,
+	OPTIONS_VERTICAL,
+	OPTIONS_HORIZONTAL,
+	OPTIONS_FOOTER,
+	OPTIONS_HEADER,
+	MEDIA_IMAGE,
+	MEDIA_AUDIO,
+	MEDIA_VIDEO,
+	MEDIA_PDF,
+	EXTERNAL_LINK;
+}
