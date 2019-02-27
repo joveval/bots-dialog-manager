@@ -15,5 +15,5 @@ import lombok.ToString;
 public class Context {
 	private String id;
 	private String sessionId;
-	Map<String, Object> mapVariables;
+	private Map<String, Object> mapVariables;
 }

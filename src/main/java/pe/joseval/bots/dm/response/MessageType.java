@@ -2,6 +2,7 @@ package pe.joseval.bots.dm.response;
 
 
 public enum MessageType {
+	
 	RAW_TEXT,
 	CUSTOMIZED,
 	OPTIONS_VERTICAL,

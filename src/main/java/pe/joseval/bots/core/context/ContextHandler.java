@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ContextHandler {
 
-	ContextClient contextClient;
+	private ContextClient contextClient;
 	
 	public ContextHandler(ContextClient contextClient) {
 		this.contextClient = contextClient;
@@ -29,7 +29,8 @@ public class ContextHandler {
 	public Context handle(ContextHandlingDefinition definition, String sessionId, Map<String, Object> factParams) {
 
 		Context context = null;
-		Context savedContext, findedContext;
+		Context savedContext; 
+		Context findedContext;
 		String contextId = null;
 		
 		if (definition.getType() != null) {

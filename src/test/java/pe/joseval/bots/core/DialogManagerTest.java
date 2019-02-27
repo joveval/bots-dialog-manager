@@ -60,7 +60,6 @@ public class DialogManagerTest {
 
 			@Override
 			protected void configure(Configurer configurer) {
-				// TODO Auto-generated method stub
 				Node root = node(simpleState(0))
 
 						.withEdge(edge(lEquals("intent", "intent_01"))
@@ -80,10 +79,8 @@ public class DialogManagerTest {
 														
 														
 													}))
-									//.withDirectResponse("Response1")
 									.toTarget(node(simpleState(1))))
 						.withEdge(edge(lTrue())
-									//.withDirectResponse("Response2","Response3")
 									.withAction(action(ActionType.NAMED_ACTION)
 											.withResponseList("Response2","Response3")
 											.withName("NONE")
@@ -99,7 +96,6 @@ public class DialogManagerTest {
 		
 		Map<String, Object> factParams = new HashMap<>();
 		factParams.put("intent", "intent_01");
-		//State state = SimpleState(0);
 		DialogManagerResponse resp = sm.getResponseByTransition(factParams, null);
 		assertNotNull(resp);
 		assertFalse(resp.getMessages().isEmpty());

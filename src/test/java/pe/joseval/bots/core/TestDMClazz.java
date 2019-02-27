@@ -14,14 +14,9 @@ import pe.joseval.util.states.machine.core.Node;
 
 public class TestDMClazz extends CoreDialogManager {
 
-
-	
-	
-	
 	@Override
 	protected void configure(Configurer configurer) {
-		// TODO Auto-generated method stub
-		//log.debug("initTree(Node root)");
+
 		Node root = node(simpleState(0))
 
 				.withEdge(edge(lEquals("intent", "intent_01"))
@@ -29,10 +24,8 @@ public class TestDMClazz extends CoreDialogManager {
 							.withAction(action(ActionType.NAMED_ACTION)
 											.withResponseList("Response1")
 											.withName("NONE"))
-							//.withDirectResponse("Response1")
 							.toTarget(node(simpleState(1))))
 				.withEdge(edge(lTrue())
-							//.withDirectResponse("Response2","Response3")
 							.withAction(action(ActionType.NAMED_ACTION)
 									.withResponseList("Response2","Response3")
 									.withName("NONE")

@@ -27,7 +27,6 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 	private DefaultActions defaultActions = new DefaultActions();
 	private StatesManager<DialogManagerResponse> manager = new StatesManager<>();
 	private ContextClient contextClient;
-	private Node treeRoot;
 	private Configurer configurer = new Configurer();
 
 	protected CoreDialogManager() {
@@ -37,6 +36,8 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 
 	private void initializeWithVariables() {
 
+		Node treeRoot;
+		
 		log.debug("Configuring dialog manager");
 		configure(configurer);
 		contextClient = configurer.getContextClient();
