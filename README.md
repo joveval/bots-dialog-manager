@@ -1,4 +1,4 @@
-# Rules manager
+# Chatbot dialog manager
 
 Chatbot Dialog Manager is a java package that allows to model a dialog as a state machine. The advantage of using this package is that gives you all the boilerplate code needed to define a sequence of dialog in a interactive and easy way (as dialog tree).
 
