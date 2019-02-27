@@ -22,7 +22,7 @@ Clone this project in your PC. Then install it using Maven:
 ## Use
 Define the dialog tree sequence:
 
-* Create a class that extends to `CoreDialogManager`:
+*   Create a class that extends to `CoreDialogManager`:
 
 ``` java
 public class MyDialogManager extends CoreDialogManager {
@@ -50,14 +50,14 @@ public class MyDialogManager extends CoreDialogManager {
 ```
 You could define an in memory context storage or implement your own. Specify it using `withContextClient`. 
 
-* Populate a map of values:
+*   Populate a map of values:
 
 ``` java
 MyDialogManager sm = new MyDialogManager();
 Map<String, Object> factParams = new HashMap<>();
 factParams.put("intent", "intent_01");
 ```
-* Execute transition as needed:
+*   Execute transition as needed:
 
 ``` java
 DialogManagerResponse resp = sm.getResponseByTransition(factParams, null);
