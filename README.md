@@ -1,5 +1,7 @@
 # Chatbot dialog manager
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4d329240714643afad71b06c83d881d8)](https://app.codacy.com/app/joveval/bots-dialog-manager?utm_source=github.com&utm_medium=referral&utm_content=joveval/bots-dialog-manager&utm_campaign=Badge_Grade_Dashboard)
+
 Chatbot Dialog Manager is a java package that allows to model a dialog as a state machine. The advantage of using this package is that gives you all the boilerplate code needed to define a sequence of dialog in a interactive and easy way (as dialog tree).
 
 ## Installation
