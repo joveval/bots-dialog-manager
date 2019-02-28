@@ -37,7 +37,7 @@
 		<connection>scm:git:git://github.com/joveval/bots-dialog-manager.git</connection>
 		<developerConnection>scm:git:git@github.com:joveval/bots-dialog-manager.git</developerConnection>
 		<url>https://github.com/joveval/bots-dialog-manager</url>
-		<tag>ChatbotDialogManager-1.0.0-beta</tag>
+		<tag>ChatbotDialogManager-1.1.0-beta</tag>
 	</scm>
 
 
