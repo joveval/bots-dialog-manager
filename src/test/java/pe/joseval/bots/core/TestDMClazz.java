@@ -14,6 +14,7 @@ import pe.joseval.util.states.machine.core.Node;
 
 public class TestDMClazz extends CoreDialogManager {
 
+
 	@Override
 	protected void configure(Configurer configurer) {
 

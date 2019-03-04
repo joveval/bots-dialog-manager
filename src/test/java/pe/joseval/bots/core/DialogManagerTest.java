@@ -28,9 +28,9 @@ public class DialogManagerTest {
 	public void test0() {
 
 		TestDMClazz testClazz = new TestDMClazz();
+		testClazz.forceInit();
 		Map<String, Object> factParams = new HashMap<>();
 		factParams.put("intent", "intent_01");
-		//State state = SimpleState(0);
 		DialogManagerResponse resp = testClazz.getResponseByTransition(factParams, null);
 		assertNotNull(resp);
 		assertFalse(resp.getMessages().isEmpty());
@@ -41,11 +41,11 @@ public class DialogManagerTest {
 	
 	@Test
 	public void test2() {
-
+		
 		TestDMClazz testClazz = new TestDMClazz();
+		testClazz.forceInit();
 		Map<String, Object> factParams = new HashMap<>();
 		factParams.put("intent", "intent_0");
-		//State state = SimpleState(0);
 		DialogManagerResponse resp = testClazz.getResponseByTransition(factParams, null);
 		assertNotNull(resp);
 		assertFalse(resp.getMessages().isEmpty());
@@ -56,6 +56,7 @@ public class DialogManagerTest {
 	
 	@Test
 	public void test3(){
+		
 		CoreDialogManager sm = new CoreDialogManager() {
 
 			@Override
@@ -93,7 +94,7 @@ public class DialogManagerTest {
 			
 		};
 		
-		
+		sm.forceInit();
 		Map<String, Object> factParams = new HashMap<>();
 		factParams.put("intent", "intent_01");
 		DialogManagerResponse resp = sm.getResponseByTransition(factParams, null);

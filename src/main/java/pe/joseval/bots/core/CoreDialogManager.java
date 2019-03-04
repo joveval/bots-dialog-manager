@@ -5,6 +5,8 @@ import static pe.joseval.util.states.machine.core.StaticMethods.simpleState;
 
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,9 +33,9 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 
 	protected CoreDialogManager() {
 
-		initializeWithVariables();
 	}
 
+	@PostConstruct
 	private void initializeWithVariables() {
 
 		Node treeRoot;
@@ -52,6 +54,12 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 			log.error("Not possible to find a conversational tree definition.");
 		
 		treeRoot.populateStateManager(manager);
+	}
+	
+	
+	protected void forceInit() {
+		
+		initializeWithVariables();
 	}
 
 	protected abstract void configure(Configurer configurer);
