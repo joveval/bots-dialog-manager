@@ -130,17 +130,18 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 
 			}
 
-			if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
-
-				contextHandDef = (ContextHandlingDefinition) smParams.get(ActionTasks.HANDLE_CONTEXT);
-				context = contextHandler.handle(contextHandDef, sessionId, factParams);
-				if (context != null) {
-
-					response.setSessionId(context.getSessionId());
-				}
-			}
 		}
 
+		if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
+
+			contextHandDef = (ContextHandlingDefinition) smParams.get(ActionTasks.HANDLE_CONTEXT);
+			context = contextHandler.handle(contextHandDef, sessionId, factParams);
+			if (context != null) {
+
+				response.setSessionId(context.getSessionId());
+			}
+		}
+		
 		return response;
 	}
 
