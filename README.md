@@ -16,7 +16,7 @@ Clone this project in your PC. Then install it using Maven:
 <dependency>
 	<groupId>io.github.joveval.bots</groupId>
 	<artifactId>ChatbotDialogManager</artifactId>
-	<version>1.1.6-beta</version>
+	<version>1.1.7-beta</version>
 </dependency>
 ```
 ## Use
@@ -54,6 +54,7 @@ You could define an in memory context storage or implement your own. Specify it 
 
 ``` java
 MyDialogManager sm = new MyDialogManager();
+sm.forceInit();
 Map<String, Object> factParams = new HashMap<>();
 factParams.put("intent", "intent_01");
 ```

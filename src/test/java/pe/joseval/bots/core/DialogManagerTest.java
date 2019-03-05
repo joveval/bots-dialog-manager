@@ -61,7 +61,7 @@ public class DialogManagerTest {
 
 			@Override
 			protected void configure(Configurer configurer) {
-				Node root = node(simpleState(0))
+				Node root = node(0)
 
 						.withEdge(edge(lEquals("intent", "intent_01"))
 									
@@ -79,13 +79,13 @@ public class DialogManagerTest {
 														
 														
 													}))
-									.toTarget(node(simpleState(1))))
+									.toTarget(node(1)))
 						.withEdge(edge(lTrue())
 									.withAction(action(ActionType.NAMED_ACTION)
 											.withResponseList("Response2","Response3")
 											.withName("NONE")
 											)
-									.toTarget(node(simpleState(2))));
+									.toTarget(node(2)));
 				
 				configurer.withContextClient(new InMemoryContext())
 						  .withTreeRoot(root);
