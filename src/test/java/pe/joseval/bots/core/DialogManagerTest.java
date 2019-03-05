@@ -66,7 +66,6 @@ public class DialogManagerTest {
 						.withEdge(edge(lEquals("intent", "intent_01"))
 									
 									.withAction(action(ActionType.LAMBDA_ACTION)
-													.withResponseList("Response1")
 													.withName("NONE")
 													.withCustomAction(new Function<Map<String,Object>, DialogManagerResponse>() {
 

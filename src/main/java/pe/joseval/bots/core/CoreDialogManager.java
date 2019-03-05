@@ -16,6 +16,7 @@ import pe.joseval.bots.core.context.Context;
 import pe.joseval.bots.core.context.ContextClient;
 import pe.joseval.bots.core.context.ContextHandler;
 import pe.joseval.bots.core.context.ContextHandler.ContextHandlingDefinition;
+import pe.joseval.util.states.machine.core.ActionType;
 import pe.joseval.bots.dm.response.DialogManagerResponse;
 import pe.joseval.util.states.machine.core.Node;
 import pe.joseval.util.states.machine.core.State;
@@ -95,8 +96,9 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 		tRes = manager.executeTransition(currentState, factParams);
 		factParams.put(PARAMS_GLOBAL_STATE_ID, tRes.getNextState().getStateId());
 		smParams = tRes.getAction().getCustomParams();
+		ActionType actionType = tRes.getAction().getActionType();
 
-		if (smParams.containsKey(ActionTasks.RUN_CUSTOM_METHOD)) {
+		if (actionType.equals(ActionType.LAMBDA_ACTION)) {
 
 			response = (DialogManagerResponse) tRes.getAction().getCustomAction().apply(factParams);
 		} else {
