@@ -7,10 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Singular;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder(builderClassName = "Builder", builderMethodName = "builder")
 public class Message {
 

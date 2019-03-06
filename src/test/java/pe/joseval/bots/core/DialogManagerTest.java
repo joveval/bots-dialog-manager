@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import static pe.joseval.bots.core.DmAction.action;
 import static pe.joseval.bots.core.StaticMethods.edge;
 import static pe.joseval.bots.core.StaticMethods.node;
-import static pe.joseval.bots.core.StaticMethods.simpleState;
 import static pe.joseval.util.rules.manager.core.StaticConditions.lEquals;
 import static pe.joseval.util.rules.manager.core.StaticConditions.lTrue;
 
