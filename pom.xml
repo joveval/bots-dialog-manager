@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.joveval.bots</groupId>
 	<artifactId>ChatbotDialogManager</artifactId>
-	<version>1.1.8-beta</version>
+	<version>1.1.9-beta</version>
 	<name>Chatbot Dialog Manager SDK</name>
 	<url>https://github.com/joveval/bots-dialog-manager</url>
 	<description>State machine builder and manager.</description>
@@ -37,7 +37,7 @@
 		<connection>scm:git:git://github.com/joveval/bots-dialog-manager.git</connection>
 		<developerConnection>scm:git:git@github.com:joveval/bots-dialog-manager.git</developerConnection>
 		<url>https://github.com/joveval/bots-dialog-manager</url>
-		<tag>ChatbotDialogManager-1.1.8-beta</tag>
+		<tag>ChatbotDialogManager-1.1.9-beta</tag>
 	</scm>
 
 
