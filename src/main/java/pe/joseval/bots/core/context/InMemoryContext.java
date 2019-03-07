@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class InMemoryContext implements ContextClient {
 
 	private Map<String, Context> contextList;
@@ -49,7 +52,9 @@ public class InMemoryContext implements ContextClient {
 		// TODO Auto-generated method stub
 
 		String sessionId = UUID.randomUUID().toString();
+		context.setSessionId(sessionId);
 		contextList.put(sessionId, context);
+		log.debug("[CONTEXT][IN_MEMORY]: Saved Value {}",contextList.get(sessionId)); 
 		return contextList.get(sessionId);
 	}
 
