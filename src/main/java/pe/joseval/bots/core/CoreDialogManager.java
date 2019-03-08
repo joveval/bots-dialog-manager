@@ -167,7 +167,7 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 
 			if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
 
-				makeContextTask(smParams, factParams, context, sessionId,response);
+				makeContextTask(smParams, factParams, sessionId,response);
 			}
 		} else {
 
@@ -178,14 +178,14 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 
 				if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
 
-					makeContextTask(smParams, factParams, context, sessionId,response);
+					makeContextTask(smParams, factParams, sessionId,response);
 				}
 				break;
 			case LAMBDA:
 
 				if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
 
-					makeContextTask(smParams, factParams, context, sessionId,response);
+					makeContextTask(smParams, factParams, sessionId,response);
 				}
 				break;
 			case NAMED:
@@ -206,7 +206,7 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 								ContextHandlingDefinition contextHandlingDefinition = new ContextHandlingDefinition();
 								contextHandlingDefinition.setParamsToHandle(contextHD.params());
 								contextHandlingDefinition.setType(contextHD.type());
-								useContextHandler(contextHandlingDefinition, sessionId, response, context, factParams);
+								useContextHandler(contextHandlingDefinition, sessionId, response, factParams);
 							}
 							
 						} catch (InstantiationException e) {
@@ -280,21 +280,19 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 		return response;
 	}
 
-	private void  makeContextTask(final Map<String, Object> smParams, final Map<String, Object> factParams,
-			Context context, String sessionId,DialogManagerResponse response) {
+	private void  makeContextTask(final Map<String, Object> smParams, final Map<String, Object> factParams, String sessionId,DialogManagerResponse response) {
 		//DialogManagerResponse response = null;
 		ContextHandlingDefinition contextHandDef;
 		contextHandDef = (ContextHandlingDefinition) smParams.get(ActionTasks.HANDLE_CONTEXT);
-		useContextHandler(contextHandDef, sessionId, response, context, factParams);
-		return;
+		useContextHandler(contextHandDef, sessionId, response, factParams);
 	}
 	
 	
 	
-	private void useContextHandler(ContextHandlingDefinition contextHandDef,String sessionId,DialogManagerResponse response,Context context,Map<String, Object> factParams) {
-		context = contextHandler.handle(contextHandDef, sessionId, factParams);
-		if (context != null) 
-			response.setSessionId(context.getSessionId());
+	private void useContextHandler(ContextHandlingDefinition contextHandDef,String sessionId,DialogManagerResponse response,Map<String, Object> factParams) {
+		Context localContext = contextHandler.handle(contextHandDef, sessionId, factParams);
+		if (localContext != null) 
+			response.setSessionId(localContext.getSessionId());
 		
 	}
 
