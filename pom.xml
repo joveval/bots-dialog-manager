@@ -167,6 +167,12 @@
 			<artifactId>StatesMachine</artifactId>
 			<version>1.0.1-alpha</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.reflections/reflections -->
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.10</version>
+		</dependency>
 
 
 		<!-- https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api -->

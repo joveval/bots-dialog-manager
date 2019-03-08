@@ -6,6 +6,7 @@ public interface StatesMachineConstants {
 	public static final String ORDERED_RESPONSE_LIST ="orderedResponseList";
 	public static final String CONTEXT_HANDLER="handleContext";
 	
+	public static final String ACTION_TYPE = "sm_constants_action_type";
 	public static final String ACTION_TYPE_CUSTOM="Custom";
 	public static final String ACTION_TYPE_DEFAULT="";
 	

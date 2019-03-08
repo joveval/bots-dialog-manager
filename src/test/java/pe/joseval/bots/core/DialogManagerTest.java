@@ -3,9 +3,9 @@ package pe.joseval.bots.core;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static pe.joseval.bots.core.DmAction.action;
 import static pe.joseval.bots.core.StaticMethods.edge;
 import static pe.joseval.bots.core.StaticMethods.node;
+import static pe.joseval.bots.dm.actions.DmAction.action;
 import static pe.joseval.util.rules.manager.core.StaticConditions.lEquals;
 import static pe.joseval.util.rules.manager.core.StaticConditions.lTrue;
 
@@ -186,5 +186,32 @@ public class DialogManagerTest {
 		
 		
 	}
+	
+	
+	@Test
+	public void namedActionsTest() {
+		NamedActionDM sm = new NamedActionDM();
+		sm.forceInit();
+		Map<String, Object> factParams = new HashMap<>();
+		factParams.put("intent", "intent_01");
+		
+		DialogManagerResponse resp = sm.getResponseByTransition(factParams, null);
+		assertNotNull(resp);
+		assertFalse(resp.getMessages().isEmpty());
+		assertNotNull(resp.getMessages().get(0).getMessageBody());
+		assertTrue(resp.getMessages().get(0).getMessageBody().equals("RESPONSEACTION01"));
+		
+		factParams.replace("intent", "intent_xx");
+		
+		resp = sm.getResponseByTransition(factParams, null);
+		
+		assertNotNull(resp);
+		assertFalse(resp.getMessages().isEmpty());
+		assertNotNull(resp.getMessages().get(0).getMessageBody());
+		assertTrue(resp.getMessages().get(0).getMessageBody().equals("RESPONSEACTION_DEFAULT"));
+		
+	}
+	
+	
 
 }

@@ -3,9 +3,16 @@ package pe.joseval.bots.core;
 import static pe.joseval.bots.core.StatesMachineConstants.CUSTOM_SIMPLE_MESSAGE;
 import static pe.joseval.util.states.machine.core.StaticMethods.simpleState;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+
+import org.reflections.Reflections;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,8 +23,12 @@ import pe.joseval.bots.core.context.Context;
 import pe.joseval.bots.core.context.ContextClient;
 import pe.joseval.bots.core.context.ContextHandler;
 import pe.joseval.bots.core.context.ContextHandler.ContextHandlingDefinition;
-import pe.joseval.util.states.machine.core.ActionType;
+import pe.joseval.bots.core.context.ContextHandler.ContextHandlingTypes;
+import pe.joseval.bots.dm.actions.Action;
+import pe.joseval.bots.dm.actions.BaseAction;
+import pe.joseval.bots.dm.actions.ContextHandDef;
 import pe.joseval.bots.dm.response.DialogManagerResponse;
+import pe.joseval.util.states.machine.core.ActionType;
 import pe.joseval.util.states.machine.core.Node;
 import pe.joseval.util.states.machine.core.State;
 import pe.joseval.util.states.machine.core.StatesManager;
@@ -31,6 +42,7 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 	private StatesManager<DialogManagerResponse> manager = new StatesManager<>();
 	private ContextClient contextClient;
 	private Configurer configurer = new Configurer();
+	private Map<String, Class<?>> namedActions = new HashMap<>();
 
 	protected CoreDialogManager() {
 
@@ -40,26 +52,56 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 	private void initializeWithVariables() {
 
 		Node treeRoot;
-		
+
 		log.debug("Configuring dialog manager");
 		configure(configurer);
 		contextClient = configurer.getContextClient();
-		
+
 		if (contextClient == null)
 			log.warn("ContextClient has not been defined. It may be cumbersome if you try to save context values.");
-		
+
 		contextHandler = new ContextHandler(contextClient);
 		treeRoot = configurer.getTreeRoot();
-		
+
 		if (treeRoot == null)
 			log.error("Not possible to find a conversational tree definition.");
-		
+
+		String basePackageToScan = null;
+
+		log.debug("this = {}", this.getClass().getName());
+		ActionsScan anno = this.getClass().getDeclaredAnnotation(ActionsScan.class);
+
+		if (anno != null) {
+			basePackageToScan = anno.value() == null ? anno.basePackage() : anno.value();
+
+			log.debug("Searching for Actions classes in {}", basePackageToScan);
+		}
+		// String basePackageToScan = ((ActionsScan)anno).basePackage();
+		if (basePackageToScan != null) {
+			Reflections reflections = new Reflections(basePackageToScan);
+			Set<Class<?>> localActions = reflections.getTypesAnnotatedWith(Action.class);
+			localActions = localActions.stream().filter(c -> {
+				List<Class<?>> l = Arrays.asList(c.getInterfaces());
+				l = l.stream().filter(a -> a.equals(BaseAction.class)).collect(Collectors.toList());
+				return !l.isEmpty();
+			}).collect(Collectors.toSet());
+
+			log.debug("Listing actions to invoke in dialog management ...");
+			localActions.forEach(a -> {
+
+				Action ann = a.getAnnotation(Action.class);
+				log.debug("Named Action = name = {},context = {},automatic = {}", ann.name(),
+						ann.contextHandDef().type(), ann.automatic());
+				namedActions.put(ann.name(), a);
+			});
+
+		}
+
 		treeRoot.populateStateManager(manager);
 	}
-	
-	
+
 	protected void forceInit() {
-		
+
 		initializeWithVariables();
 	}
 
@@ -67,13 +109,13 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 
 	@Override
 	public DialogManagerResponse getResponseByTransition(Map<String, Object> factParams, String sessionId) {
-		
+
 		State currentState = simpleState(0);
 		DialogManagerResponse response = null;
 		TransitionResponse<DialogManagerResponse> tRes;
 		Map<String, Object> smParams;
-		Context context;
-		ContextHandlingDefinition contextHandDef;
+		Context context = null;
+		//ContextHandlingDefinition contextHandDef;
 
 		if (sessionId != null) {
 
@@ -96,63 +138,164 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 		tRes = manager.executeTransition(currentState, factParams);
 		factParams.put(PARAMS_GLOBAL_STATE_ID, tRes.getNextState().getStateId());
 		smParams = tRes.getAction().getCustomParams();
-		ActionType actionType = tRes.getAction().getActionType();
 
-		if (actionType.equals(ActionType.LAMBDA_ACTION)) {
-
-			response = (DialogManagerResponse) tRes.getAction().getCustomAction().apply(factParams);
-		} else {
-
-			if (smParams.containsKey(ActionTasks.BUILD_RESPONSE_MESSAGE)) {
-
-				String[] directList = (String[]) smParams.get(ActionTasks.BUILD_RESPONSE_MESSAGE);
-				if (smParams.containsKey(CUSTOM_SIMPLE_MESSAGE)) {
-
-					SimpleMessageCustomizer customizer = (SimpleMessageCustomizer) smParams.get(CUSTOM_SIMPLE_MESSAGE);
-					response = defaultActions.getPlainResponseFromList(directList, customizer);
-				} else {
-
-					response = defaultActions.getPlainResponseFromList(directList);
-				}
-			}
-
-			if (smParams.containsKey(ActionTasks.BUILD_ORDERED_RESPONSE_MESSAGES)) {
-
-				String[] orderedList = (String[]) smParams.get(ActionTasks.BUILD_ORDERED_RESPONSE_MESSAGES);
-				if (smParams.containsKey(CUSTOM_SIMPLE_MESSAGE)) {
-
-					SimpleMessageCustomizer customizer = (SimpleMessageCustomizer) smParams.get(CUSTOM_SIMPLE_MESSAGE);
-					response = defaultActions.getSimpleMultilineMessage(orderedList, customizer);
-				} else {
-
-					response = defaultActions.getSimpleMultilineMessage(orderedList);
-				}
-
-			}
-
+		pe.joseval.bots.dm.actions.ActionType localActionType = null;
+		if (smParams.containsKey(StatesMachineConstants.ACTION_TYPE)) {
+			localActionType = (pe.joseval.bots.dm.actions.ActionType) smParams.get(StatesMachineConstants.ACTION_TYPE);
 		}
 
-		if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
+		ActionType actionType = tRes.getAction().getActionType();
 
-			contextHandDef = (ContextHandlingDefinition) smParams.get(ActionTasks.HANDLE_CONTEXT);
-			context = contextHandler.handle(contextHandDef, sessionId, factParams);
-			if (context != null) {
+		if (actionType == null && localActionType == null) {
+			log.info("No action type defined so defaulting to null response value.");
+			return null;
+		}
 
-				response.setSessionId(context.getSessionId());
+		if (actionType != null && localActionType != null) {
+			log.info("Both types of action can not be defined at the same time, so defaulting to null response value.");
+			return null;
+		}
+
+		if (actionType != null) {
+			if (actionType.equals(ActionType.LAMBDA_ACTION)) {
+
+				response = (DialogManagerResponse) tRes.getAction().getCustomAction().apply(factParams);
+			} else {
+
+				response = automaticResponse(smParams);
 			}
+
+			if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
+
+				makeContextTask(smParams, factParams, context, sessionId,response);
+			}
+		} else {
+
+			switch (localActionType) {
+			case AUTO:
+				response = automaticResponse(smParams);
+				
+
+				if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
+
+					makeContextTask(smParams, factParams, context, sessionId,response);
+				}
+				break;
+			case LAMBDA:
+
+				if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
+
+					makeContextTask(smParams, factParams, context, sessionId,response);
+				}
+				break;
+			case NAMED:
+				
+				if(tRes.getAction().getActionToMake()!=null) {
+					Class<?> actionAbs  = namedActions.get(tRes.getAction().getActionToMake());
+					if(actionAbs!=null) {
+						try {
+							//actionAbs.
+							@SuppressWarnings("unchecked")
+							BaseAction<DialogManagerResponse> bAction = (BaseAction<DialogManagerResponse>) actionAbs.newInstance();
+							
+							response = bAction.execute(factParams);
+							Action ann = actionAbs.getAnnotation(Action.class);
+							
+							if(!ann.contextHandDef().type().equals(ContextHandlingTypes.NONE)) {
+								ContextHandDef contextHD = ann.contextHandDef();
+								ContextHandlingDefinition contextHandlingDefinition = new ContextHandlingDefinition();
+								contextHandlingDefinition.setParamsToHandle(contextHD.params());
+								contextHandlingDefinition.setType(contextHD.type());
+								useContextHandler(contextHandlingDefinition, sessionId, response, context, factParams);
+							}
+							
+						} catch (InstantiationException e) {
+							// TODO Auto-generated catch block
+							log.error("ERROR:",e);
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							log.error("ERROR:",e);
+						}
+					}else {
+						log.warn("Not founded Action class with name: {}",tRes.getAction().getActionToMake());
+					}
+				}else {
+					log.warn("Defined as named but not correctly set.");
+				}
+				
+				break;
+			default:
+				log.debug("This is a possible bug in CoreDialogManager");
+				break;
+
+			}
+			
+
+		}
+		
+
+		return response;
+	}
+
+	protected SimpleMessageCustomizer.SimpleMessageCustomizerBuilder messageCustomizer() {
+
+		return SimpleMessageCustomizer.builder();
+	}
+
+	protected ContextHandlingDefinition.ContextHandlingDefinitionBuilder contextHandler() {
+
+		return ContextHandlingDefinition.builder();
+	}
+
+	private DialogManagerResponse automaticResponse(Map<String, Object> smParams) {
+		
+		DialogManagerResponse response = null;
+		if (smParams.containsKey(ActionTasks.BUILD_RESPONSE_MESSAGE)) {
+
+			String[] directList = (String[]) smParams.get(ActionTasks.BUILD_RESPONSE_MESSAGE);
+			if (smParams.containsKey(CUSTOM_SIMPLE_MESSAGE)) {
+
+				SimpleMessageCustomizer customizer = (SimpleMessageCustomizer) smParams.get(CUSTOM_SIMPLE_MESSAGE);
+				response = defaultActions.getPlainResponseFromList(directList, customizer);
+			} else {
+
+				response = defaultActions.getPlainResponseFromList(directList);
+			}
+		}
+
+		if (smParams.containsKey(ActionTasks.BUILD_ORDERED_RESPONSE_MESSAGES)) {
+
+			String[] orderedList = (String[]) smParams.get(ActionTasks.BUILD_ORDERED_RESPONSE_MESSAGES);
+			if (smParams.containsKey(CUSTOM_SIMPLE_MESSAGE)) {
+
+				SimpleMessageCustomizer customizer = (SimpleMessageCustomizer) smParams.get(CUSTOM_SIMPLE_MESSAGE);
+				response = defaultActions.getSimpleMultilineMessage(orderedList, customizer);
+			} else {
+
+				response = defaultActions.getSimpleMultilineMessage(orderedList);
+			}
+
 		}
 		
 		return response;
 	}
 
-	protected SimpleMessageCustomizer.SimpleMessageCustomizerBuilder messageCustomizer() {
-		
-		return SimpleMessageCustomizer.builder();
+	private void  makeContextTask(final Map<String, Object> smParams, final Map<String, Object> factParams,
+			Context context, String sessionId,DialogManagerResponse response) {
+		//DialogManagerResponse response = null;
+		ContextHandlingDefinition contextHandDef;
+		contextHandDef = (ContextHandlingDefinition) smParams.get(ActionTasks.HANDLE_CONTEXT);
+		useContextHandler(contextHandDef, sessionId, response, context, factParams);
+		return;
 	}
-
-	protected ContextHandlingDefinition.ContextHandlingDefinitionBuilder contextHandler() {
+	
+	
+	
+	private void useContextHandler(ContextHandlingDefinition contextHandDef,String sessionId,DialogManagerResponse response,Context context,Map<String, Object> factParams) {
+		context = contextHandler.handle(contextHandDef, sessionId, factParams);
+		if (context != null) 
+			response.setSessionId(context.getSessionId());
 		
-		return ContextHandlingDefinition.builder();
 	}
 
 	@Data
@@ -160,7 +303,7 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 	@AllArgsConstructor
 	@Builder(builderClassName = "Builder", builderMethodName = "builder")
 	public static class Configurer {
-		
+
 		private ContextClient contextClient;
 		private Node treeRoot;
 
