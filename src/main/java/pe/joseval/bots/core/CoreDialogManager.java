@@ -17,6 +17,7 @@ import org.reflections.Reflections;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.joseval.bots.core.context.Context;
@@ -34,6 +35,10 @@ import pe.joseval.util.states.machine.core.State;
 import pe.joseval.util.states.machine.core.StatesManager;
 import pe.joseval.util.states.machine.core.TransitionResponse;
 
+/**
+ * @author Usuario
+ *
+ */
 @Slf4j
 public abstract class CoreDialogManager implements DialogManagerInterface {
 
@@ -42,7 +47,7 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 	private StatesManager<DialogManagerResponse> manager = new StatesManager<>();
 	private ContextClient contextClient;
 	private Configurer configurer = new Configurer();
-	private Map<String, Class<?>> namedActions = new HashMap<>();
+	private Map<String, Object> namedActions = new HashMap<>();
 
 	protected CoreDialogManager() {
 
@@ -77,6 +82,12 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 			log.debug("Searching for Actions classes in {}", basePackageToScan);
 		}
 		// String basePackageToScan = ((ActionsScan)anno).basePackage();
+		scanForNamedActions(basePackageToScan);
+
+		treeRoot.populateStateManager(manager);
+	}
+
+	protected void scanForNamedActions(String basePackageToScan) {
 		if (basePackageToScan != null) {
 			Reflections reflections = new Reflections(basePackageToScan);
 			Set<Class<?>> localActions = reflections.getTypesAnnotatedWith(Action.class);
@@ -92,17 +103,27 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 				Action ann = a.getAnnotation(Action.class);
 				log.debug("Named Action = name = {},context = {},automatic = {}", ann.name(),
 						ann.contextHandDef().type(), ann.automatic());
-				namedActions.put(ann.name(), a);
+				try {
+					namedActions.put(ann.name(), a.newInstance());
+				} catch (InstantiationException | IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					log.error("ERROR:",e);
+				}
 			});
 
 		}
-
-		treeRoot.populateStateManager(manager);
 	}
-
+	
 	protected void forceInit() {
 
 		initializeWithVariables();
+	}
+
+	
+	
+	
+	public Map<String, Object> getNamedActions() {
+		return namedActions;
 	}
 
 	protected abstract void configure(Configurer configurer);
@@ -191,15 +212,15 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 			case NAMED:
 				
 				if(tRes.getAction().getActionToMake()!=null) {
-					Class<?> actionAbs  = namedActions.get(tRes.getAction().getActionToMake());
+					Object actionAbs  = namedActions.get(tRes.getAction().getActionToMake());
 					if(actionAbs!=null) {
 						try {
 							//actionAbs.
 							@SuppressWarnings("unchecked")
-							BaseAction<DialogManagerResponse> bAction = (BaseAction<DialogManagerResponse>) actionAbs.newInstance();
+							BaseAction<DialogManagerResponse> bAction = (BaseAction<DialogManagerResponse>) actionAbs;
 							
 							response = bAction.execute(factParams);
-							Action ann = actionAbs.getAnnotation(Action.class);
+							Action ann = actionAbs.getClass().getAnnotation(Action.class);
 							
 							if(!ann.contextHandDef().type().equals(ContextHandlingTypes.NONE)) {
 								ContextHandDef contextHD = ann.contextHandDef();
@@ -209,13 +230,10 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 								useContextHandler(contextHandlingDefinition, sessionId, response, factParams);
 							}
 							
-						} catch (InstantiationException e) {
+						} catch (ClassCastException e) {
 							// TODO Auto-generated catch block
 							log.error("ERROR:",e);
-						} catch (IllegalAccessException e) {
-							// TODO Auto-generated catch block
-							log.error("ERROR:",e);
-						}
+						} 
 					}else {
 						log.warn("Not founded Action class with name: {}",tRes.getAction().getActionToMake());
 					}
