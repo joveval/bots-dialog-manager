@@ -17,7 +17,6 @@ import org.reflections.Reflections;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.joseval.bots.core.context.Context;
@@ -107,21 +106,18 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 					namedActions.put(ann.name(), a.newInstance());
 				} catch (InstantiationException | IllegalAccessException e) {
 					// TODO Auto-generated catch block
-					log.error("ERROR:",e);
+					log.error("ERROR:", e);
 				}
 			});
 
 		}
 	}
-	
+
 	protected void forceInit() {
 
 		initializeWithVariables();
 	}
 
-	
-	
-	
 	public Map<String, Object> getNamedActions() {
 		return namedActions;
 	}
@@ -135,35 +131,19 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 		DialogManagerResponse response = null;
 		TransitionResponse<DialogManagerResponse> tRes;
 		Map<String, Object> smParams;
-		Context context = null;
-		//ContextHandlingDefinition contextHandDef;
 
-		if (sessionId != null) {
-
-			context = contextClient.findBySessionId(sessionId);
-			try {
-
-				Integer stateId = (Integer) context.getMapVariables().get(PARAMS_GLOBAL_STATE_ID);
-				currentState = simpleState(stateId);
-				factParams.putAll(context.getMapVariables());
-			} catch (Exception e) {
-
-				currentState = simpleState(0);
-				factParams.put(PARAMS_GLOBAL_STATE_ID, 0);
-			}
-		} else {
-
-			factParams.put(PARAMS_GLOBAL_STATE_ID, 0);
-		}
-
+		// Setting current state
+		currentState = getStateBasedOnSessionId(sessionId);
+		factParams.put(PARAMS_GLOBAL_STATE_ID, currentState.getStateId());
+		// Execute state machine transition
 		tRes = manager.executeTransition(currentState, factParams);
+		// Saving next state in fact params
 		factParams.put(PARAMS_GLOBAL_STATE_ID, tRes.getNextState().getStateId());
 		smParams = tRes.getAction().getCustomParams();
 
 		pe.joseval.bots.dm.actions.ActionType localActionType = null;
-		if (smParams.containsKey(StatesMachineConstants.ACTION_TYPE)) {
+		if (smParams.containsKey(StatesMachineConstants.ACTION_TYPE))
 			localActionType = (pe.joseval.bots.dm.actions.ActionType) smParams.get(StatesMachineConstants.ACTION_TYPE);
-		}
 
 		ActionType actionType = tRes.getAction().getActionType();
 
@@ -178,81 +158,93 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 		}
 
 		if (actionType != null) {
-			if (actionType.equals(ActionType.LAMBDA_ACTION)) {
-
+			if (actionType.equals(ActionType.LAMBDA_ACTION))
 				response = (DialogManagerResponse) tRes.getAction().getCustomAction().apply(factParams);
-			} else {
-
+			else
 				response = automaticResponse(smParams);
-			}
 
-			if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
+			if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT))
+				makeContextTask(smParams, factParams, sessionId, response);
 
-				makeContextTask(smParams, factParams, sessionId,response);
-			}
 		} else {
 
 			switch (localActionType) {
 			case AUTO:
 				response = automaticResponse(smParams);
-				
-
-				if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
-
-					makeContextTask(smParams, factParams, sessionId,response);
-				}
+				if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) 
+					makeContextTask(smParams, factParams, sessionId, response);
 				break;
 			case LAMBDA:
-
-				if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) {
-
-					makeContextTask(smParams, factParams, sessionId,response);
-				}
+				response = (DialogManagerResponse) tRes.getAction().getCustomAction().apply(factParams);
+				if (smParams.containsKey(ActionTasks.HANDLE_CONTEXT)) 
+					makeContextTask(smParams, factParams, sessionId, response);
+				
 				break;
 			case NAMED:
-				
-				if(tRes.getAction().getActionToMake()!=null) {
-					Object actionAbs  = namedActions.get(tRes.getAction().getActionToMake());
-					if(actionAbs!=null) {
+
+				if (tRes.getAction().getActionToMake() != null) {
+					Object actionAbs = namedActions.get(tRes.getAction().getActionToMake());
+					if (actionAbs != null) {
 						try {
-							//actionAbs.
+							// actionAbs.
 							@SuppressWarnings("unchecked")
 							BaseAction<DialogManagerResponse> bAction = (BaseAction<DialogManagerResponse>) actionAbs;
-							
+
 							response = bAction.execute(factParams);
-							Action ann = actionAbs.getClass().getAnnotation(Action.class);
-							
-							if(!ann.contextHandDef().type().equals(ContextHandlingTypes.NONE)) {
-								ContextHandDef contextHD = ann.contextHandDef();
+
+							ContextHandDef contextHD = getContextHandAnnotation(bAction);
+							if (!contextHD.type().equals(ContextHandlingTypes.NONE)) {
 								ContextHandlingDefinition contextHandlingDefinition = new ContextHandlingDefinition();
 								contextHandlingDefinition.setParamsToHandle(contextHD.params());
 								contextHandlingDefinition.setType(contextHD.type());
 								useContextHandler(contextHandlingDefinition, sessionId, response, factParams);
 							}
-							
+
 						} catch (ClassCastException e) {
 							// TODO Auto-generated catch block
-							log.error("ERROR:",e);
-						} 
-					}else {
-						log.warn("Not founded Action class with name: {}",tRes.getAction().getActionToMake());
+							log.error("ERROR:", e);
+						}
+					} else {
+						log.warn("Not founded Action class with name: {}", tRes.getAction().getActionToMake());
 					}
-				}else {
+				} else {
 					log.warn("Defined as named but not correctly set.");
 				}
-				
+
 				break;
 			default:
 				log.debug("This is a possible bug in CoreDialogManager");
 				break;
 
 			}
-			
 
 		}
-		
 
 		return response;
+	}
+
+	private State getStateBasedOnSessionId(String sessionId) {
+		Context context;
+		if (sessionId != null) {
+
+			context = contextClient.findBySessionId(sessionId);
+			try {
+
+				Integer stateId = (Integer) context.getMapVariables().get(PARAMS_GLOBAL_STATE_ID);
+				return simpleState(stateId);
+			} catch (Exception e) {
+
+				return simpleState(0);
+			}
+		} else {
+			return simpleState(0);
+
+		}
+	}
+
+	protected ContextHandDef getContextHandAnnotation(Object actionClazz) {
+		Action ann = actionClazz.getClass().getAnnotation(Action.class);
+		return ann.contextHandDef();
 	}
 
 	protected SimpleMessageCustomizer.SimpleMessageCustomizerBuilder messageCustomizer() {
@@ -266,7 +258,7 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 	}
 
 	private DialogManagerResponse automaticResponse(Map<String, Object> smParams) {
-		
+
 		DialogManagerResponse response = null;
 		if (smParams.containsKey(ActionTasks.BUILD_RESPONSE_MESSAGE)) {
 
@@ -294,24 +286,24 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 			}
 
 		}
-		
+
 		return response;
 	}
 
-	private void  makeContextTask(final Map<String, Object> smParams, final Map<String, Object> factParams, String sessionId,DialogManagerResponse response) {
-		//DialogManagerResponse response = null;
+	private void makeContextTask(final Map<String, Object> smParams, final Map<String, Object> factParams,
+			String sessionId, DialogManagerResponse response) {
+		// DialogManagerResponse response = null;
 		ContextHandlingDefinition contextHandDef;
 		contextHandDef = (ContextHandlingDefinition) smParams.get(ActionTasks.HANDLE_CONTEXT);
 		useContextHandler(contextHandDef, sessionId, response, factParams);
 	}
-	
-	
-	
-	private void useContextHandler(ContextHandlingDefinition contextHandDef,String sessionId,DialogManagerResponse response,Map<String, Object> factParams) {
+
+	private void useContextHandler(ContextHandlingDefinition contextHandDef, String sessionId,
+			DialogManagerResponse response, Map<String, Object> factParams) {
 		Context localContext = contextHandler.handle(contextHandDef, sessionId, factParams);
-		if (localContext != null) 
+		if (localContext != null)
 			response.setSessionId(localContext.getSessionId());
-		
+
 	}
 
 	@Data

@@ -16,7 +16,7 @@ import pe.joseval.bots.dm.actions.ContextHandDef;
 @Target(TYPE)
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public @interface SpringAction {
+public @interface SpringAction  {
 	String name() default "NONE";
 	ContextHandDef contextHandDef() default @ContextHandDef;
 	boolean automatic() default false;

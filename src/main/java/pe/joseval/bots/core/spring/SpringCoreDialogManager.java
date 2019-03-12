@@ -7,9 +7,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationContext;
 
+import lombok.extern.slf4j.Slf4j;
 import pe.joseval.bots.core.CoreDialogManager;
 import pe.joseval.bots.dm.actions.BaseAction;
+import pe.joseval.bots.dm.actions.ContextHandDef;
 
+@Slf4j
 public abstract class SpringCoreDialogManager extends CoreDialogManager {
 
 	private final ApplicationContext springContext;
@@ -38,7 +41,17 @@ public abstract class SpringCoreDialogManager extends CoreDialogManager {
 				SpringAction ann = v.getClass().getAnnotation(SpringAction.class);
 				getNamedActions().put(ann.name(), v);
 			});
+			
+			log.debug("Actions Map = ",getNamedActions());
+			
 		}
+	}
+	
+	@Override
+	protected ContextHandDef getContextHandAnnotation(Object actionClazz) {
+		// TODO Auto-generated method stub
+		SpringAction ann = actionClazz.getClass().getAnnotation(SpringAction.class);
+		return ann.contextHandDef();
 	}
 	
 }

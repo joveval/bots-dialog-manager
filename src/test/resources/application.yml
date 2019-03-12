@@ -1,0 +1,9 @@
+logging:
+  level:
+    pe:
+      joseval:
+        bots: debug
+        util:
+          states:
+            machine:
+              core: debug
