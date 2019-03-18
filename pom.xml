@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.joveval.bots</groupId>
 	<artifactId>ChatbotDialogManager</artifactId>
-	<version>1.2.1-beta</version>
+	<version>1.2.2-beta</version>
 	<name>Chatbot Dialog Manager SDK</name>
 	<url>https://github.com/joveval/bots-dialog-manager</url>
 	<description>State machine builder and manager.</description>
@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.0.RELEASE</version>
+		<version>2.1.2.RELEASE</version>
 	</parent>
 
 
@@ -44,7 +44,7 @@
 		<connection>scm:git:git://github.com/joveval/bots-dialog-manager.git</connection>
 		<developerConnection>scm:git:git@github.com:joveval/bots-dialog-manager.git</developerConnection>
 		<url>https://github.com/joveval/bots-dialog-manager</url>
-		<tag>ChatbotDialogManager-1.2.1-beta</tag>
+		<tag>ChatbotDialogManager-1.2.2-beta</tag>
 	</scm>
 
 
