@@ -11,7 +11,7 @@ import pe.joseval.bots.core.context.InMemoryContext;
 import pe.joseval.util.states.machine.core.Node;
 
 @ActionsScan("pe.joseval.bots.core.actions.test")
-public class NamedActionDM extends CoreDialogManager {
+public class NamedActionDMTest extends CoreDialogManager {
 
 	@Override
 	protected void configure(Configurer configurer) {

@@ -10,7 +10,7 @@ import pe.joseval.bots.dm.actions.ContextHandDef;
 import pe.joseval.bots.dm.response.DialogManagerResponse;
 
 @Slf4j
-public class SpringActions {
+public class SpringActionsTest {
 
 	@SpringAction(name="ACTION01",contextHandDef=@ContextHandDef(type=ContextHandlingTypes.SAVE_PARTIALLY,params= {"stateId"}))
 	public static class Action01 implements BaseAction<DialogManagerResponse>{

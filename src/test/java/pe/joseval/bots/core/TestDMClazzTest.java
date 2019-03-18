@@ -13,7 +13,7 @@ import pe.joseval.util.states.machine.core.ActionType;
 import pe.joseval.util.states.machine.core.Node;
 
 @ActionsScan("pe.joseval.bots.core.actions.test")
-public class TestDMClazz extends CoreDialogManager {
+public class TestDMClazzTest extends CoreDialogManager {
 
 
 	@Override

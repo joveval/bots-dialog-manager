@@ -19,12 +19,12 @@ import pe.joseval.bots.dm.response.DialogManagerResponse;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { Application.class })
+@SpringBootTest(classes = { ApplicationTest.class })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DialogManagerSpringTest {
 
 	@Autowired
-	TestDMSpringClazz sm;
+	TestDMSpringClazzTest sm;
 	
 	@Test
 	public void test() {

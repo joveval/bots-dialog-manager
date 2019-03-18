@@ -18,10 +18,10 @@ import pe.joseval.util.states.machine.core.Node;
 @Slf4j
 @Component
 @ActionsScan("pe.joseval.bots.core")
-public class TestDMSpringClazz extends SpringCoreDialogManager{
+public class TestDMSpringClazzTest extends SpringCoreDialogManager{
 
 	@Autowired
-	protected TestDMSpringClazz(ApplicationContext springContext) {
+	protected TestDMSpringClazzTest(ApplicationContext springContext) {
 		super(springContext);
 		// TODO Auto-generated constructor stub
 	}

@@ -26,7 +26,7 @@ public class DialogManagerTest {
 	@Test
 	public void test0() {
 
-		TestDMClazz testClazz = new TestDMClazz();
+		TestDMClazzTest testClazz = new TestDMClazzTest();
 		testClazz.forceInit();
 		Map<String, Object> factParams = new HashMap<>();
 		factParams.put("intent", "intent_01");
@@ -40,7 +40,7 @@ public class DialogManagerTest {
 	@Test
 	public void test2() {
 
-		TestDMClazz testClazz = new TestDMClazz();
+		TestDMClazzTest testClazz = new TestDMClazzTest();
 		testClazz.forceInit();
 		Map<String, Object> factParams = new HashMap<>();
 		factParams.put("intent", "intent_0");
@@ -190,7 +190,7 @@ public class DialogManagerTest {
 	
 	@Test
 	public void namedActionsTest() {
-		NamedActionDM sm = new NamedActionDM();
+		NamedActionDMTest sm = new NamedActionDMTest();
 		sm.forceInit();
 		Map<String, Object> factParams = new HashMap<>();
 		factParams.put("intent", "intent_01");

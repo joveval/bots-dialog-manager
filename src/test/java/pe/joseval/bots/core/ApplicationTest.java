@@ -6,10 +6,10 @@ import org.springframework.context.annotation.ComponentScan;
 
 @ComponentScan("pe.joseval.bots.core")
 @SpringBootApplication
-public class Application {
+public class ApplicationTest {
 
 	public static void main(String[] args) throws Exception {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(ApplicationTest.class, args);
 	}
 
 }
