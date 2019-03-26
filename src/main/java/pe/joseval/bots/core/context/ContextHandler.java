@@ -41,12 +41,14 @@ public class ContextHandler {
 				if (sessionId == null) {
 					context = new Context();
 					context.setMapVariables(factParams);
+					log.debug("[CONTEXT][SAVING]: {}",context);
 					savedContext = contextClient.save(context);
 				} else {
 					findedContext = contextClient.findBySessionId(sessionId);
 					//contextId = getStringIdFromUrl(findedContext.getId().getHref());
 					context = findedContext;
 					context.getMapVariables().putAll(factParams);
+					log.debug("[CONTEXT][SAVING]: {}",context);
 					savedContext = contextClient.updateContext(contextId, context);
 				}
 
@@ -57,15 +59,18 @@ public class ContextHandler {
 				Map<String, Object> netFactParams = new HashMap<>();
 				for (String var : definition.getParamsToHandle()) 
 					netFactParams.put(var, factParams.get(var));
-				
+				log.debug("[CONTEXT][NET_PARAMS]: {}",netFactParams);
 				if (sessionId == null) {
 					context = new Context();
 					context.setMapVariables(netFactParams);
+					log.debug("[CONTEXT][SAVING]: {}",context);
 					savedContext = contextClient.save(context);
+					
 				} else {
 					findedContext = contextClient.findBySessionId(sessionId);
 					context = findedContext;
 					context.getMapVariables().putAll(netFactParams);
+					log.debug("[CONTEXT][SAVING]: {}",context);
 					savedContext = contextClient.updateContext(sessionId, context);
 				}
 

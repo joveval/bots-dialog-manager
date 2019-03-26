@@ -131,10 +131,14 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 		DialogManagerResponse response = null;
 		TransitionResponse<DialogManagerResponse> tRes;
 		Map<String, Object> smParams;
+		FirstContextResponse firstTimeContext;
 
 		// Setting current state
-		currentState = getStateBasedOnSessionId(sessionId);
-		factParams.put(PARAMS_GLOBAL_STATE_ID, currentState.getStateId());
+		
+		firstTimeContext = getFirstContextResponse(sessionId);
+		currentState = firstTimeContext.getState();
+		factParams.putAll(firstTimeContext.getSessionParams());
+		
 		// Execute state machine transition
 		tRes = manager.executeTransition(currentState, factParams);
 		// Saving next state in fact params
@@ -241,6 +245,32 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 
 		}
 	}
+	
+	private FirstContextResponse getFirstContextResponse(String sessionId){
+		Context context;
+		State state;
+		Map<String, Object> params = new HashMap<>();
+		if (sessionId != null) {
+
+			context = contextClient.findBySessionId(sessionId);
+			try {
+
+				Integer stateId = (Integer) context.getMapVariables().get(PARAMS_GLOBAL_STATE_ID);
+				params.putAll(context.getMapVariables());
+				state= simpleState(stateId);
+			} catch (Exception e) {
+
+				state= simpleState(0);
+			}
+		} else {
+			state= simpleState(0);
+
+		}
+		
+		return new FirstContextResponse(state, params);
+	}
+	
+	
 
 	protected ContextHandDef getContextHandAnnotation(Object actionClazz) {
 		Action ann = actionClazz.getClass().getAnnotation(Action.class);
@@ -306,6 +336,15 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 
 	}
 
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class FirstContextResponse{
+		private State state;
+		private Map<String, Object> sessionParams;
+	}
+	
+	
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor
