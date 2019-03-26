@@ -16,7 +16,7 @@ Clone this project in your PC. Then install it using Maven:
 <dependency>
 	<groupId>io.github.joveval.bots</groupId>
 	<artifactId>ChatbotDialogManager</artifactId>
-	<version>1.2.3-beta</version>
+	<version>1.2.4-beta</version>
 </dependency>
 ```
 ## Use

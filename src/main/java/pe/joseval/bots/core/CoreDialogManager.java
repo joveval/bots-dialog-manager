@@ -137,7 +137,9 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 		
 		firstTimeContext = getFirstContextResponse(sessionId);
 		currentState = firstTimeContext.getState();
-		factParams.putAll(firstTimeContext.getSessionParams());
+		firstTimeContext.getSessionParams().putAll(factParams);
+		factParams = firstTimeContext.getSessionParams();
+		//factParams.putAll(firstTimeContext.getSessionParams());
 		
 		// Execute state machine transition
 		tRes = manager.executeTransition(currentState, factParams);
