@@ -31,7 +31,6 @@ public class ContextHandler {
 		Context context = null;
 		Context savedContext; 
 		Context findedContext;
-		String contextId = null;
 		
 		if (definition.getType() != null) {
 			
@@ -49,7 +48,7 @@ public class ContextHandler {
 					context = findedContext;
 					context.getMapVariables().putAll(factParams);
 					log.debug("[CONTEXT][SAVING]: {}",context);
-					savedContext = contextClient.updateContext(contextId, context);
+					savedContext = contextClient.updateContext(sessionId, context);
 				}
 
 				context = savedContext;

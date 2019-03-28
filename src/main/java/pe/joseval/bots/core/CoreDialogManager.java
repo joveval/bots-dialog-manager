@@ -228,25 +228,6 @@ public abstract class CoreDialogManager implements DialogManagerInterface {
 
 		return response;
 	}
-
-	private State getStateBasedOnSessionId(String sessionId) {
-		Context context;
-		if (sessionId != null) {
-
-			context = contextClient.findBySessionId(sessionId);
-			try {
-
-				Integer stateId = (Integer) context.getMapVariables().get(PARAMS_GLOBAL_STATE_ID);
-				return simpleState(stateId);
-			} catch (Exception e) {
-
-				return simpleState(0);
-			}
-		} else {
-			return simpleState(0);
-
-		}
-	}
 	
 	private FirstContextResponse getFirstContextResponse(String sessionId){
 		Context context;
